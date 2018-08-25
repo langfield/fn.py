@@ -38,7 +38,13 @@ class Curriedtest(unittest.TestCase):
         def _custom_sum(a, b, c, d):
             return a + b + c + d
 
-        _custom_sum.__annotations__ = {'a': int, 'b': int, 'c': int, 'd': int, 'return': int}
+        _custom_sum.__annotations__ = {
+                                        'a': int,
+                                        'b': int,
+                                        'c': int,
+                                        'd': int,
+                                        'return': int
+                                      }
 
         custom_sum = curried(_custom_sum)
 

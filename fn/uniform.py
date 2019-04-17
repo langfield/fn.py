@@ -22,3 +22,10 @@ if version_info[0] == 2:
 else:
     from itertools import filterfalse
     from itertools import zip_longest
+
+# Using or importing the ABCs from 'collections' instead of from
+# 'collections.abc' is deprecated, and in 3.8 it will stop working.
+if version_info[0] <= 3 and version_info[1] < 8:
+    from collections import Iterable
+else:
+    from collections.abc import Iterable

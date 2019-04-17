@@ -1,4 +1,4 @@
-from collections import Iterable, deque
+from collections import deque
 from functools import partial
 from itertools import (chain, combinations, cycle, dropwhile, islice, repeat,
                        starmap, takewhile, tee)
@@ -7,7 +7,7 @@ from sys import version_info
 
 from .func import F
 from .op import flip
-from .uniform import filterfalse, zip_longest, map, range, filter
+from .uniform import filterfalse, zip_longest, map, range, filter, Iterable
 
 
 def take(limit, base):

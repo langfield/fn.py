@@ -1,5 +1,8 @@
 from functools import partial, update_wrapper, wraps
-from inspect import getargspec
+from sys import version_info
+
+
+_has_type_hint_support = version_info[:2] >= (3, 5)
 
 
 def identity(arg):
@@ -69,6 +72,17 @@ def curried(func):
     >>> sum5(1, 2, 3)(4, 5)
     15
     """
+
+    def _args_len(func):
+        if _has_type_hint_support:
+            from inspect import signature
+            args = signature(func).parameters
+        else:
+            from inspect import getargspec
+            args = getargspec(func).args
+
+        return len(args)
+
     @wraps(func)
     def _curried(*args, **kwargs):
         f = func
@@ -78,9 +92,7 @@ def curried(func):
                 count += len(f.args)
             f = f.func
 
-        spec = getargspec(f)
-
-        if count == len(spec.args) - len(args):
+        if count == _args_len(f) - len(args):
             return func(*args, **kwargs)
 
         para_func = partial(func, *args, **kwargs)

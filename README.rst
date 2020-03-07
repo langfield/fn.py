@@ -4,7 +4,7 @@ Fn.py: enjoy FP in Python
 .. image:: https://badges.gitter.im/fnpy/fn.py.svg
    :alt: Join the chat at https://gitter.im/fnpy/fn.py
    :target: https://gitter.im/fnpy/fn.py?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-   
+
 .. image:: https://travis-ci.org/fnpy/fn.py.svg?branch=master
     :target: https://travis-ci.org/fnpy/fn.py
 
@@ -28,15 +28,18 @@ Python <http://kachayev.github.com/talks/uapycon2012/index.html>`_.
 Scala-style lambdas definition
 ------------------------------
 
-.. code-block:: python
+::
 
-    from fn import _
-    from fn.op import zipwith
-    from itertools import repeat
+    >>> from fn import _
+    >>> from fn.op import zipwith
+    >>> from itertools import repeat
 
-    assert list(map(_ * 2, range(5))) == [0,2,4,6,8]
-    assert list(filter(_ < 10, [9,10,11])) == [9]
-    assert list(zipwith(_ + _)([0,1,2], repeat(10))) == [10,11,12]
+    >>> list(map(_ * 2, range(5)))
+    [0, 2, 4, 6, 8]
+    >>> list(filter(_ < 10, [9,10,11]))
+    [9]
+    >>> list(zipwith(_ + _)([0,1,2], repeat(10)))
+    [10, 11, 12]
 
 More examples of using ``_`` you can find in `test
 cases <https://github.com/kachayev/fn.py/blob/master/tests.py>`_
@@ -44,20 +47,15 @@ declaration (attributes resolving, method calling, slicing).
 
 **Attention!** If you work in interactive python shell, your should remember that ``_`` means "latest output" and you'll get unpredictable results. In this case, you can do something like ``from fn import _ as X`` (and then write functions like ``X * 2``).
 
-If you are not sure, what your function is going to do, you can print it:
+If you are not sure, what your function is going to do, you can print it::
 
-.. code-block:: python
+    >>> print(_ + 2)
+    (x1) => (x1 + 2)
+    >>> print(_ + _ * _)
+    (x1, x2, x3) => (x1 + (x2 * x3))
 
-    from fn import _
+``_`` will fail with ``ArityError`` (``TypeError`` subclass) on inaccurate number of passed arguments. This is one more restrictions to ensure that you did everything right::
 
-    print (_ + 2) # "(x1) => (x1 + 2)"
-    print (_ + _ * _) # "(x1, x2, x3) => (x1 + (x2 * x3))"
-
-``_`` will fail with ``ArityError`` (``TypeError`` subclass) on inaccurate number of passed arguments. This is one more restrictions to ensure that you did everything right:
-
-.. code-block:: python
-
-    >>> from fn import _
     >>> (_ + _)(1)
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
@@ -81,14 +79,16 @@ Lets take a quick look:
     >>> s1 = SkewHeap(10)
     >>> s2 = s1.insert(20)
     >>> s2
-    <fn.immutable.heap.SkewHeap object at 0x10b14c050>
+    <fn.immutable.heap.SkewHeap object at 0x...>
     >>> s3 = s2.insert(30)
     >>> s3
-    <fn.immutable.heap.SkewHeap object at 0x10b14c158> # <-- other object
+    <fn.immutable.heap.SkewHeap object at 0x...>
+    >>> id(s3) != id(s2)
+    True
     >>> s3.extract()
-    (10, <fn.immutable.heap.SkewHeap object at 0x10b14c050>)
+    (10, <fn.immutable.heap.SkewHeap object at 0x...>)
     >>> s3.extract() # <-- s3 isn't changed
-    (10, <fn.immutable.heap.SkewHeap object at 0x10b11c052>)
+    (10, <fn.immutable.heap.SkewHeap object at 0x...>)
 
 If you think I'm totally crazy and it will work despairingly slow, just give it 5 minutes. Relax, take a deep breath and read about few techniques that make persistent data structures fast and efficient: `structural sharing <http://en.wikipedia.org/wiki/Persistent_data_structure#Examples_of_persistent_data_structures>`_ and `path copying <http://en.wikipedia.org/wiki/Persistent_data_structure#Path_Copying>`_.
 
@@ -130,69 +130,68 @@ element "on demand" and share calculated elements between all created
 iterators. ``Stream`` object supports ``<<`` operator that means pushing
 new elements when it's necessary.
 
-Simplest cases:
+::
 
-.. code-block:: python
+    >>> from fn import Stream
 
-    from fn import Stream
+    >>> s = Stream() << [1,2,3,4,5]
+    >>> list(s)
+    [1, 2, 3, 4, 5]
+    >>> s[1]
+    2
+    >>> list(s[0:2])
+    [1, 2]
 
-    s = Stream() << [1,2,3,4,5]
-    assert list(s) == [1,2,3,4,5]
-    assert s[1] == 2
-    assert list(s[0:2]) == [1,2]
+    >>> s = Stream() << range(6) << [6,7]
+    >>> list(s)
+    [0, 1, 2, 3, 4, 5, 6, 7]
 
-    s = Stream() << range(6) << [6,7]
-    assert list(s) == [0,1,2,3,4,5,6,7]
+    >>> def gen():
+    ...     yield 1
+    ...     yield 2
+    ...     yield 3
 
-    def gen():
-        yield 1
-        yield 2
-        yield 3
-
-    s = Stream() << gen << (4,5)
-    assert list(s) == [1,2,3,4,5]
+    >>> s = Stream() << gen << (4,5)
+    >>> list(s)
+    [1, 2, 3, 4, 5]
 
 Lazy-evaluated stream is useful for infinite sequences, i.e. fibonacci
-sequence can be calculated as:
+sequence can be calculated as::
 
-.. code-block:: python
+    >>> from fn.iters import take, drop, map
+    >>> from operator import add
 
-    from fn import Stream
-    from fn.iters import take, drop, map
-    from operator import add
+    >>> f = Stream()
+    >>> fib = f << [0, 1] << map(add, f, drop(1, f))
 
-    f = Stream()
-    fib = f << [0, 1] << map(add, f, drop(1, f))
-
-    assert list(take(10, fib)) == [0,1,1,2,3,5,8,13,21,34]
-    assert fib[20] == 6765
-    assert list(fib[30:35]) == [832040,1346269,2178309,3524578,5702887]
+    >>> list(take(10, fib))
+    [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+    >>> fib[20]
+    6765
+    >>> list(fib[30:35])
+    [832040, 1346269, 2178309, 3524578, 5702887]
 
 Trampolines decorator
 ---------------------
 
-``fn.recur.tco`` is a workaround for dealing with TCO without heavy stack utilization. Let's start from simple example of recursive factorial calculation:
+``fn.recur.tco`` is a workaround for dealing with TCO without heavy stack utilization. Let's start from simple example of recursive factorial calculation::
 
-.. code-block:: python
+    >>> def fact(n):
+    ...    if n == 0: return 1
+    ...    return n * fact(n-1)
 
-    def fact(n):
-        if n == 0: return 1
-        return n * fact(n-1)
+This variant works, but it's really ugly. Why? It will utilize memory too heavy cause of recursive storing all previous values to calculate final result. If you will execute this function with big ``n`` (more than ``sys.getrecursionlimit()``) CPython will fail with::
 
-This variant works, but it's really ugly. Why? It will utilize memory too heavy cause of recursive storing all previous values to calculate final result. If you will execute this function with big ``n`` (more than ``sys.getrecursionlimit()``) CPython will fail with
-
-.. code-block:: python
 
     >>> import sys
     >>> fact(sys.getrecursionlimit() * 2)
-    ... many many lines of stacktrace ...
-    RuntimeError: maximum recursion depth exceeded
+    Traceback (most recent call last):
+        ...
+    RecursionError: maximum recursion depth exceeded ...
 
 Which is good, cause it prevents you from terrible mistakes in your code.
 
-How can we optimize this solution? Answer is simple, lets transform function to use tail call:
-
-.. code-block:: python
+How can we optimize this solution? Answer is simple, lets transform function to use tail call::
 
     def fact(n, acc=1):
         if n == 0: return acc
@@ -200,16 +199,14 @@ How can we optimize this solution? Answer is simple, lets transform function to 
 
 Why this variant is better? Cause you don't need to remember previous values to calculate final result. More about `tail call optimization <http://en.wikipedia.org/wiki/Tail_call>`_ on Wikipedia. But... Python interpreter will execute this function the same way as previous one, so you won't win anything.
 
-``fn.recur.tco`` gives you mechanism to write "optimized a bit" tail call recursion (using "trampoline" approach):
+``fn.recur.tco`` gives you mechanism to write "optimized a bit" tail call recursion (using "trampoline" approach)::
 
-.. code-block:: python
+    >>> from fn import recur
 
-    from fn import recur
-
-    @recur.tco
-    def fact(n, acc=1):
-        if n == 0: return False, acc
-        return True, (n-1, acc*n)
+    >>> @recur.tco
+    ... def fact(n, acc=1):
+    ...    if n == 0: return False, acc
+    ...    return True, (n-1, acc*n)
 
 ``@recur.tco`` is a decorator that execute your function in ``while`` loop and check output:
 
@@ -217,9 +214,7 @@ Why this variant is better? Cause you don't need to remember previous values to 
 - ``(True, args, kwargs)`` means that we need to call function again with other arguments
 - ``(func, args, kwargs)`` to switch function to be executed inside while loop
 
-The last variant is really useful, when you need to switch callable inside evaluation loop. Good example for such situation is recursive detection if given number is odd or even:
-
-.. code-block:: python
+The last variant is really useful, when you need to switch callable inside evaluation loop. Good example for such situation is recursive detection if given number is odd or even::
 
     >>> from fn import recur
     >>> @recur.tco
@@ -232,7 +227,7 @@ The last variant is really useful, when you need to switch callable inside evalu
     ...     if x == 0: return False, False
     ...     return even, (x-1,)
     ...
-    >>> print even(100000)
+    >>> even(100000)
     True
 
 **Attention:** be careful with mutable/immutable data structures processing.
@@ -291,30 +286,32 @@ High-level operations with functions
 ``fn.F`` is a useful function wrapper to provide easy-to-use partial
 application and functions composition.
 
-.. code-block:: python
+::
 
-    from fn import F, _
-    from operator import add, mul
+    >>> from fn import F, _
+    >>> from operator import add, mul
 
     # F(f, *args) means partial application
     # same as functools.partial but returns fn.F instance
-    assert F(add, 1)(10) == 11
+    >>> F(add, 1)(10)
+    11
 
     # F << F means functions composition,
     # so (F(f) << g)(x) == f(g(x))
-    f = F(add, 1) << F(mul, 100)
-    assert list(map(f, [0, 1, 2])) == [1, 101, 201]
-    assert list(map(F() << str << (_ ** 2) << (_ + 1), range(3))) == ["1", "4", "9"]
+    >>> f = F(add, 1) << F(mul, 100)
+    >>> list(map(f, [0, 1, 2]))
+    [1, 101, 201]
+    >>> list(map(F() << str << (_ ** 2) << (_ + 1), range(3)))
+    ['1', '4', '9']
 
-It also give you move readable in many cases "pipe" notation to deal with functions composition:
+It also give you move readable in many cases "pipe" notation to deal with functions composition::
 
-.. code-block:: python
+    >>> from fn import F, _
+    >>> from fn.iters import filter, range
 
-    from fn import F, _
-    from fn.iters import filter, range
-
-    func = F() >> (filter, _ < 6) >> sum
-    assert func(range(10)) == 15
+    >>> func = F() >> (filter, _ < 6) >> sum
+    >>> func(range(10))
+    15
 
 You can find more examples for compositions usage in ``fn._``
 implementation `source
@@ -324,41 +321,44 @@ code <https://github.com/kachayev/fn.py/blob/master/fn/underscore.py>`__.
 in list (or any other iterable). ``fn.op.flip`` returns you function
 that will reverse arguments order before apply.
 
-.. code-block:: python
+::
 
-    from fn.op import apply, flip
-    from operator import add, sub
+    >>> from fn.op import apply, flip
+    >>> from operator import add, sub
 
-    assert apply(add, [1, 2]) == 3
-    assert flip(sub)(20,10) == -10
-    assert list(map(apply, [add, mul], [(1,2), (10,20)])) == [3, 200]
+    >>> apply(add, [1, 2])
+    3
+    >>> flip(sub)(20, 10)
+    -10
+    >>> list(map(apply, [add, mul], [(1 ,2), (10, 20)]))
+    [3, 200]
 
 ``fn.op.foldl`` and ``fn.op.foldr`` are folding operators. Each accepts function with arity 2 and returns function that can be used to reduce iterable to scalar: from left-to-right and from right-to-left in case of ``foldl`` and ``foldr`` respectively.
 
-.. code-block:: python
+::
 
-    from fn import op, _
+    >>> from fn import op
 
-    folder = op.foldr(_ * _, 1)
-    assert 6 == op.foldl(_ + _)([1,2,3])
-    assert 6 == folder([1,2,3])
+    >>> folder = op.foldr(_ * _, 1)
+    >>> op.foldl(_ + _)([1,2,3])
+    6
+    >>> folder([1,2,3])
+    6
 
-Use case specific for right-side folding is:
+Use case specific for right-side folding is::
 
-.. code-block:: python
+    >>> from fn.op import foldr, call
 
-    from fn.op import foldr, call
-
-    assert 100 == foldr(call, 0 )([lambda s: s**2, lambda k: k+10])
-    assert 400 == foldr(call, 10)([lambda s: s**2, lambda k: k+10])
+    >>> foldr(call, 0 )([lambda s: s**2, lambda k: k+10])
+    100
+    >>> foldr(call, 10)([lambda s: s**2, lambda k: k+10])
+    400
 
 
 Function currying
 -----------------
 
-``fn.func.curried`` is a decorator for building curried functions, for example:
-
-.. code-block:: python
+``fn.func.curried`` is a decorator for building curried functions, for example::
 
     >>> from fn.func import curried
     >>> @curried
@@ -376,71 +376,69 @@ Functional style for error-handling
 
 ``fn.monad.Option`` represents optional values, each instance of ``Option`` can be either instance of ``Full`` or ``Empty``. It provides you with simple way to write long computation sequences and get rid of many ``if/else`` blocks. See usage examples below.
 
-Assume that you have ``Request`` class that gives you parameter value by its name. To get uppercase notation for non-empty striped value:
+Assume that you have ``Request`` class that gives you parameter value by its name. To get uppercase notation for non-empty striped value::
 
-.. code-block:: python
+    >>> class Request(dict):
+    ...     def parameter(self, name):
+    ...         return self.get(name, None)
 
-    class Request(dict):
-        def parameter(self, name):
-            return self.get(name, None)
-
-    r = Request(testing="Fixed", empty="   ")
-    param = r.parameter("testing")
-    if param is None:
-        fixed = ""
-    else:
-        param = param.strip()
-        if len(param) == 0:
-            fixed = ""
-        else:
-            fixed = param.upper()
+    >>> r = Request(testing="Fixed", empty="   ")
+    >>> param = r.parameter("testing")
+    >>> if param is None:
+    ...     fixed = ""
+    ... else:
+    ...     param = param.strip()
+    ...     if len(param) == 0:
+    ...         fixed = ""
+    ...     else:
+    ...         fixed = param.upper()
+    >>> fixed
+    'FIXED'
 
 
-Hmm, looks ugly.. Update code with ``fn.monad.Option``:
+Hmm, looks ugly..  Update code with ``fn.monad.Option``::
 
-.. code-block:: python
+    >>> from operator import methodcaller
+    >>> from fn.monad import optionable
 
-    from operator import methodcaller
-    from fn.monad import optionable
+    >>> class Request(dict):
+    ...     @optionable
+    ...     def parameter(self, name):
+    ...         return self.get(name, None)
 
-    class Request(dict):
-        @optionable
-        def parameter(self, name):
-            return self.get(name, None)
+    >>> r = Request(testing="Fixed", empty="   ")
+    >>> (r
+    ...     .parameter("testing")
+    ...     .map(methodcaller("strip"))
+    ...     .filter(len)
+    ...     .map(methodcaller("upper"))
+    ...     .get_or("")
+    ... )
+    'FIXED'
 
-    r = Request(testing="Fixed", empty="   ")
-    fixed = r.parameter("testing")
-             .map(methodcaller("strip"))
-             .filter(len)
-             .map(methodcaller("upper"))
-             .get_or("")
-
-``fn.monad.Option.or_call`` is good method for trying several variant to end computation. I.e. use have ``Request`` class with optional attributes ``type``, ``mimetype``, ``url``. You need to evaluate "request type" using at least one attribute:
-
-.. code-block:: python
+``fn.monad.Option.or_call`` is good method for trying several variant to end computation. I.e. use have ``Request`` class with optional attributes ``type``, ``mimetype``, ``url``. You need to evaluate "request type" using at least one attribute::
 
     from fn.monad import Option
 
     request = dict(url="face.png", mimetype="PNG")
-    tp = Option \
-            .from_value(request.get("type", None)) \ # check "type" key first
-            .or_call(from_mimetype, request) \ # or.. check "mimetype" key
-            .or_call(from_extension, request) \ # or... get "url" and check extension
-            .get_or("application/undefined")
+    tp = (Option 
+        .from_value(request.get("type", None))  # check "type" key first
+        .or_call(from_mimetype, request)  # or.. check "mimetype" key
+        .or_call(from_extension, request)  # or... get "url" and check extension
+        .get_or("application/undefined")
+    )
 
 
 Installation
 ------------
 
-To install ``fn.py``, simply:
-
-.. code-block:: console
+To install ``fn.py``, simply::
 
     $ pip install fn.py
 
 You can also build library from source
 
-.. code-block:: console
+::
 
     $ git clone https://github.com/fnpy/fn.py.git
     $ cd fn.py
@@ -480,7 +478,7 @@ If you like fixing bugs:
    works as expected.
 
 How to contact the maintainers
---------------
+------------------------------
 
 - Gitter: https://gitter.im/fnpy/fn.py
 - Jacob's (Organization Owner) Email: him <at> jacobandkate143.com

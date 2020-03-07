@@ -5,7 +5,7 @@ It provides you with simple way to write long computation sequences
 and get rid of many ``if/else`` blocks. See usage examples below.
 
 Assume that you have ``Request`` class that gives you parameter
-value by its name. To get uppercase notation for non-empty striped value:
+value by its name. To get uppercase notation for non-empty striped value::
 
     class Request(dict):
         def parameter(self, name):
@@ -23,7 +23,7 @@ value by its name. To get uppercase notation for non-empty striped value:
             fixed = param.upper()
 
 
-Hmm, looks ugly.. Update code with ``fn.monad.Option``:
+Hmm, looks ugly.. Update code with ``fn.monad.Option``::
 
     from operator import methodcaller
     from fn.monad import optionable
@@ -43,7 +43,7 @@ Hmm, looks ugly.. Update code with ``fn.monad.Option``:
 ``fn.monad.Option.or_call`` is good method for trying several
 variant to end computation. I.e. use have ``Request`` class
 with optional attributes ``type``, ``mimetype``, ``url``.
-You need to evaluate "request type" using at least on attribute:
+You need to evaluate "request type" using at least on attribute::
 
     from fn.monad import Option
 

@@ -52,11 +52,12 @@ def foldl(f, init=None):
     using passed function as reducer.
 
     Usage:
-    >>> print foldl(_ + _)([0,1,2,3,4])
-    10
-    >>> print foldl(_ * _, 1)([1,2,3])
-    6
+        >>> print foldl(_ + _)([0,1,2,3,4])
+        10
+        >>> print foldl(_ * _, 1)([1,2,3])
+        6
     """
+
     def fold(it):
         args = [f, it]
         if init is not None:
@@ -72,9 +73,10 @@ def foldr(f, init=None):
     from iterator from right-to-left).
 
     Usage:
-    >>> print foldr(call, 10)([lambda s: s**2, lambda k: k+10])
-    400
+        >>> print foldr(call, 10)([lambda s: s**2, lambda k: k+10])
+        400
     """
+
     def fold(it):
         args = [flip(f), reversed(it)]
         if init is not None:
@@ -88,15 +90,17 @@ def unfold(f):
     """Return function to unfold value into stream using
     passed function as values producer. Passed function should
     accept current cursor and should return:
+
       * tuple of two elements (value, cursor), value will be added
         to output, cursor will be used for next function call
       * None in order to stop producing sequence
 
     Usage:
-    >>> doubler = unfold(lambda x: (x*2, x*2))
-    >>> list(islice(doubler(10), 0, 10))
-    [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240]
+        >>> doubler = unfold(lambda x: (x*2, x*2))
+        >>> list(islice(doubler(10), 0, 10))
+        [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240]
     """
+
     def _unfolder(start):
         value, curr = None, start
         while 1:

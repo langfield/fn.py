@@ -1,11 +1,15 @@
+===================
 fn.py documentation
 ===================
 
+.. include:: ../README.rst
+
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Contents:
 
-   fn
+   modules/modules
+   changelog
 
 Indices and tables
 ==================

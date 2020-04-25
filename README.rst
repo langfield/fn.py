@@ -8,6 +8,14 @@ Fn.py: enjoy FP in Python
 .. image:: https://travis-ci.org/fnpy/fn.py.svg?branch=master
     :target: https://travis-ci.org/fnpy/fn.py
 
+.. image:: https://img.shields.io/pypi/v/fn.py
+    :alt: PyPI
+    :target: https://pypi.org/project/fn.py
+
+.. image:: https://img.shields.io/pypi/dm/fn.py
+    :alt: PyPI - Downloads
+    :target: https://pypi.org/project/fn.py
+
 Despite the fact that Python is not a pure-functional programming language, it
 is multi-paradigm and gives you enough freedom to take advantage of a functional
 approach.  There are theoretical and practical advantages to the functional

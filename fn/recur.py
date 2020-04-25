@@ -13,13 +13,13 @@ class tco(object):
      * (func, args) or (func, kwargs) - will repeat loop with new callable
                                         and new arguments
 
-    Usage example:
+    Usage example::
 
-    @recur.tco
-    def accumulate(origin, f=operator.add, acc=0):
-        n = next(origin, None)
-        if n is None: return False, acc
-        return True, (origin, f, f(acc, n))
+        @recur.tco
+        def accumulate(origin, f=operator.add, acc=0):
+            n = next(origin, None)
+            if n is None: return False, acc
+            return True, (origin, f, f(acc, n))
 
     Idea was described on python mailing list:
     http://mail.python.org/pipermail/python-ideas/2009-May/004486.html
@@ -57,42 +57,42 @@ class stackless(object):
 
     Usage examples:
 
-    Tail call optimised recursion with tailcall():
+    Tail call optimised recursion with tailcall()::
 
-    @recur.stackless
-    def fact(n, acc=1):
-        if n == 0:
-            yield acc
-            return
-        yield fact.tailcall(n-1, n*acc)
+        @recur.stackless
+        def fact(n, acc=1):
+            if n == 0:
+                yield acc
+                return
+            yield fact.tailcall(n-1, n*acc)
 
-    Non-tail recursion with call() uses heap space so won't overflow:
+    Non-tail recursion with call() uses heap space so won't overflow::
 
-    @recur.stackless
-    def fib(n):
-        if n == 0:
-            yield 1
-            return
-        if n == 1:
-            yield 1
-            return
-        yield (yield fib.call(n-1)) + (yield fib.call(n-2))
+        @recur.stackless
+        def fib(n):
+            if n == 0:
+                yield 1
+                return
+            if n == 1:
+                yield 1
+                return
+            yield (yield fib.call(n-1)) + (yield fib.call(n-2))
 
-    Mutual recursion also works:
+    Mutual recursion also works::
 
-    @recur.stackless
-    def is_odd(n):
-        if n == 0:
-            yield False
-            return
-        yield is_even.tailcall(n-1)
+        @recur.stackless
+        def is_odd(n):
+            if n == 0:
+                yield False
+                return
+            yield is_even.tailcall(n-1)
 
-    @recur.stackless
-    def is_even(n):
-        if n == 0:
-            yield True
-            return
-        yield is_odd.tailcall(n-1)
+        @recur.stackless
+        def is_even(n):
+            if n == 0:
+                yield True
+                return
+            yield is_odd.tailcall(n-1)
 
     """
 

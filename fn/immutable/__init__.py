@@ -9,6 +9,13 @@ from .trie import Vector
 
 
 __all__ = [
-    Deque, PairingHeap, SkewHeap, LinkedList, LinkedList, Queue, Stack,
-    Vector, ListDeque
+    "Deque",
+    "PairingHeap",
+    "SkewHeap",
+    "LinkedList",
+    "LinkedList",
+    "Queue",
+    "Stack",
+    "Vector",
+    "ListDeque",
 ]

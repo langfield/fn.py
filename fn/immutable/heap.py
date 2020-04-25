@@ -40,11 +40,12 @@ class SkewHeap(_MergeBased):
     done in O(log n).
 
     Skew heaps may be described with the following recursive definition:
-    * a heap with only one element is a skew heap
-    * the result of skew merging two skew heaps is also a skew heap
+     * a heap with only one element is a skew heap
+     * the result of skew merging two skew heaps is also a skew heap
 
-    In Haskell type definition it should looks like following:
-    data Skew a = Empty | Node a (Skew a) (Skew a)
+    In Haskell type definition it should looks like following::
+
+        data Skew a = Empty | Node a (Skew a) (Skew a)
 
     More information on Wikipedia:
     [1] http://en.wikipedia.org/wiki/Skew_heap
@@ -91,7 +92,7 @@ class SkewHeap(_MergeBased):
         * minimum (or maximum regarding to given compare function)
         * new skew heap without extracted element
 
-        Or None and empty heap if self is an empty heap.
+        Or ``None`` and empty heap if ``self`` is an empty heap.
         """
         if not self:
             return None, self._make_heap()
@@ -121,8 +122,9 @@ class PairingHeap(_MergeBased):
     property requires that all the root elements of the subheaps in the list
     are not smaller (bigger) than the root element of the heap.
 
-    In Haskell type definition it should looks like following:
-    data Pairing a = Empty | Node a [Pairing a]
+    In Haskell type definition it should looks like following::
+
+        data Pairing a = Empty | Node a [Pairing a]
 
     Pairing heap has and excellent practical amortized performance. The
     amortized time per extract is less than O(log n), find-min/find-max, merge
@@ -176,8 +178,8 @@ http://www.cs.cmu.edu/afs/cs.cmu.edu/user/sleator/www/papers/pairing-heaps.pdf
 
     def extract(self):
         """Returns pair of values:
-        * minimum (or maximum regarding to given compare function)
-        * new pairing heap without extracted element
+         * minimum (or maximum regarding to given compare function)
+         * new pairing heap without extracted element
 
         Or None and empty heap if self is an empty heap.
         """

@@ -74,7 +74,14 @@ def curried(func):
     """
 
     def _args_len(func):
-        if _has_type_hint_support:
+        good = True
+        try:
+            from inspect import signature
+            signature(func)
+        except TypeError:
+            good = False
+
+        if good and _has_type_hint_support:
             from inspect import signature
             args = signature(func).parameters
         else:
@@ -83,8 +90,9 @@ def curried(func):
 
         return len(args)
 
-    @wraps(func)
+    # @wraps(func)
     def _curried(*args, **kwargs):
+        print("HELLOOOOO")
         f = func
         count = 0
         while isinstance(f, partial):
@@ -96,7 +104,15 @@ def curried(func):
             return func(*args, **kwargs)
 
         para_func = partial(func, *args, **kwargs)
-        update_wrapper(para_func, f)
+        print(f.__name__)
+        if hasattr(f, "__name__"):
+            update_wrapper(para_func, f)
         return curried(para_func)
+
+    def _curried_lambda(*args, **kwargs):
+        return partial(func, *args, **kwargs)
+
+    if func.__name__ == "<lambda>":
+        return _curried_lambda
 
     return _curried
